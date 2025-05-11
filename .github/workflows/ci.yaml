@@ -37,7 +37,12 @@ jobs:
             sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/java-17-openjdk-amd64/bin/java 1
             sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
           java -version
+        # Step 3: Verify Java version
+      - name: Verify Java Version
+        run: |
+          java -version
 
+     
       # Step 3: Run SonarQube analysis
       - name: SonarQube Scan
         uses: sonarsource/sonarcloud-github-action@v1
@@ -45,6 +50,11 @@ jobs:
           projectKey: ${{ env.SONAR_PROJECT_KEY }}
           hostUrl: ${{ env.SONAR_HOST_URL }}
           token: ${{ env.SONAR_TOKEN }}
+    - name: SpnarQube scan
+        run:|
+          sonar-scanner -x
+    
+          
 
       # Step 4: Build Docker image with a unique tag
       - name: Build Docker Image
