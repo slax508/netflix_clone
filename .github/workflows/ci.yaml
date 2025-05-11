@@ -11,7 +11,7 @@ env:
   SONAR_PROJECT_KEY: netflix # SonarQube project key
   SONAR_HOST_URL: http://3.84.169.175:9000
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # SonarQube authentication token
-  KUBERNETES_DEPLOYMENT_FILE: Kubernetes/deployment.yml #rnetes deployment file path
+  KUBERNETES_DEPLOYMENT_FILE: Kubernetes/deployment.yml # Kubernetes deployment file path
 
 jobs:
   ci-pipeline:
@@ -37,11 +37,13 @@ jobs:
           docker build -t $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG .
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-      # Step 4: Scan Docker image with Trivy
-      - name: Scan Docker Image with Trivy
-        uses: aquasecurity/trivy-action@v0.31.3
-        with:
-          image-ref: ${{ env.DOCKER_USERNAME }}/${{ env.DOCKER_REPO }}:${{ env.IMAGE_TAG }}
+      # Step 4: Install Trivy and scan Docker image
+      - name: Install and Scan Docker Image with Trivy
+        run: |
+          # Install the latest version of Trivy
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+          # Scan the Docker image
+          ./trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}
 
       # Step 5: Push Docker image to Docker Hub
       - name: Push Docker Image
@@ -55,16 +57,8 @@ jobs:
       - name: Update Kubernetes Deployment
         run: |
           sed -i "s|image: $DOCKER_USERNAME/$DOCKER_REPO:.*|image: $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}|g" $KUBERNETES_DEPLOYMENT_FILE
-          git config --global user.name "slax508
+          git config --global user.name "slax508"
           git config --global user.email "sankulaxman1998@gmail.com"
           git add $KUBERNETES_DEPLOYMENT_FILE
           git commit -m "Update deployment image to $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}"
           git push
-
-# Explanation of Steps:
-# 1. Checkout Code: Fetches the repository code to the runner.
-# 2. SonarQube Scan: Analyzes the code for bugs, vulnerabilities, and code smells using SonarQube.
-# 3. Build Docker Image: Builds a Docker image with a unique tag based on the commit SHA.
-# 4. Scan Docker Image with Trivy: Scans the Docker image for vulnerabilities using Trivy.
-# 5. Push Docker Image: Pushes the Docker image to Docker Hub with both the unique tag and the "latest" tag.
-# 6. Update Kubernetes Deployment: Updates the Kubernetes deployment file with the new image tag and commits the change back to the repository.
