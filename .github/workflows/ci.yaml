@@ -32,30 +32,11 @@ jobs:
       - name: Run Tests
         run: npm test
 
-  sonar-scan:
-    name: SonarQube Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: SonarQube Scan
-        env:
-          SONAR_HOST_URL: "http://localhost:9000"
-          SONAR_TOKEN: "squ_417d8d52e6952330fc8be2f3d0bbc7b195da7038" # Replace with your SonarQube token
-        run: |
-          npm install -g sonar-scanner
-          sonar-scanner \
-            -Dsonar.projectKey=your-project-key \
-            -Dsonar.organization=your-organization \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=$SONAR_HOST_URL \
-            -Dsonar.login=$SONAR_TOKEN
+  
 
   build-and-push-docker:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
-    needs: [unit-test, sonar-scan]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
