@@ -22,12 +22,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Install Java 17
-      - name: Install Java 17
+      # Step 2: Install Java 11
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Install Java 11
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jdk
-          sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+          sudo apt-get install -y openjdk-11-jdk
+          sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk/amd64/bin/java
           java -version
 
       # Step 3: Run SonarQube analysis
@@ -41,7 +46,7 @@ jobs:
       # Step 4: Build Docker image with a unique tag
       - name: Build Docker Image
         run: |
-          IMAGE_TAG=${{ github.sha }}
+          export IMAGE_TAG=${{ github.sha }}
           docker build -t $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG .
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
@@ -51,22 +56,22 @@ jobs:
           # Install the latest version of Trivy
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
           # Scan the Docker image
-          ./trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}
+          ./trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG
 
       # Step 6: Push Docker image to Docker Hub
       - name: Push Docker Image
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u $DOCKER_USERNAME --password-stdin
-          docker push $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}
-          docker tag $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }} $DOCKER_USERNAME/$DOCKER_REPO:latest
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u $DOCKER_USERNAME --password-stdin || exit 1
+          docker push $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG
+          docker tag $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG $DOCKER_USERNAME/$DOCKER_REPO:latest
           docker push $DOCKER_USERNAME/$DOCKER_REPO:latest
 
       # Step 7: Update Kubernetes deployment file with new image tag
       - name: Update Kubernetes Deployment
         run: |
-          sed -i "s|image: $DOCKER_USERNAME/$DOCKER_REPO:.*|image: $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}|g" $KUBERNETES_DEPLOYMENT_FILE
+          sed -i "s|image: $DOCKER_USERNAME/$DOCKER_REPO:.*|image: $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG|g" $KUBERNETES_DEPLOYMENT_FILE
           git config --global user.name "slax508"
           git config --global user.email "sankulaxman1998@gmail.com"
           git add $KUBERNETES_DEPLOYMENT_FILE
-          git commit -m "Update deployment image to $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}"
+          git commit -m "Update deployment image to $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG"
           git push
