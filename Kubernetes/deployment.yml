@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: netflix-app
-        image: sandhya0593/netflixk8s:969aeca425011bde93f3c263f428f95809df139a
+        image: sandhya0593/netflixk8s:27c09bf05dbd23258abd71af9a443f1dd360ed7b
         ports:
         - containerPort: 80
