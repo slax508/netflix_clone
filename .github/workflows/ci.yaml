@@ -22,7 +22,14 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Run SonarQube analysis
+      # Step 2: Install Java 17
+      - name: Install Java 17
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk
+          java -version
+
+      # Step 3: Run SonarQube analysis
       - name: SonarQube Scan
         uses: sonarsource/sonarcloud-github-action@v1
         with:
@@ -30,14 +37,14 @@ jobs:
           hostUrl: ${{ env.SONAR_HOST_URL }}
           token: ${{ env.SONAR_TOKEN }}
 
-      # Step 3: Build Docker image with a unique tag
+      # Step 4: Build Docker image with a unique tag
       - name: Build Docker Image
         run: |
           IMAGE_TAG=${{ github.sha }}
           docker build -t $DOCKER_USERNAME/$DOCKER_REPO:$IMAGE_TAG .
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
-      # Step 4: Install Trivy and scan Docker image
+      # Step 5: Install Trivy and scan Docker image
       - name: Install and Scan Docker Image with Trivy
         run: |
           # Install the latest version of Trivy
@@ -45,7 +52,7 @@ jobs:
           # Scan the Docker image
           ./trivy image --exit-code 1 --severity HIGH,CRITICAL $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}
 
-      # Step 5: Push Docker image to Docker Hub
+      # Step 6: Push Docker image to Docker Hub
       - name: Push Docker Image
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u $DOCKER_USERNAME --password-stdin
@@ -53,7 +60,7 @@ jobs:
           docker tag $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }} $DOCKER_USERNAME/$DOCKER_REPO:latest
           docker push $DOCKER_USERNAME/$DOCKER_REPO:latest
 
-      # Step 6: Update Kubernetes deployment file with new image tag
+      # Step 7: Update Kubernetes deployment file with new image tag
       - name: Update Kubernetes Deployment
         run: |
           sed -i "s|image: $DOCKER_USERNAME/$DOCKER_REPO:.*|image: $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}|g" $KUBERNETES_DEPLOYMENT_FILE
