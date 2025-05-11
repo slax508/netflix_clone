@@ -44,6 +44,6 @@ jobs:
         run: |
           git config user.name "slax508"
           git config user.email "sankulaxman1998@gmail.com"
-          git add Kubernetes/deployment.ym
+          git add Kubernetes/deployment.yml
           git commit -m "Update image to sandhya0593/netflix05:latest"
           git push
