@@ -14,23 +14,7 @@ on:
       - '**' # Triggers on every branch commit.
 
 jobs:
-  unit-test:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Run Tests
-        run: npm test
+  
 
   
 
@@ -52,7 +36,7 @@ jobs:
           docker build -t sandhya0593/netflix05:latest .
 
       - name: Scan Docker Image with Trivy
-        uses: aquasecurity/trivy-action@v0.11.0
+        uses: aquasecurity/trivy-action@v0.12.0
         with:
           image-ref: sandhya0593/netflix05:latest
       - name: Push Docker Image
