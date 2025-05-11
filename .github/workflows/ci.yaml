@@ -9,9 +9,9 @@ env:
   DOCKER_USERNAME: sandhya0593 # Docker Hub username
   DOCKER_REPO: netflixk8s # Docker Hub repository name
   SONAR_PROJECT_KEY: netflix # SonarQube project key
-  SONAR_HOST_URL: https://sonarqube.example.com # SonarQube server URL
+  SONAR_HOST_URL: http://3.84.169.175:9000
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # SonarQube authentication token
-  KUBERNETES_DEPLOYMENT_FILE: kubernetes/deployment.yml # Kubernetes deployment file path
+  KUBERNETES_DEPLOYMENT_FILE: Kubernetes/deployment.yml #rnetes deployment file path
 
 jobs:
   ci-pipeline:
@@ -55,8 +55,8 @@ jobs:
       - name: Update Kubernetes Deployment
         run: |
           sed -i "s|image: $DOCKER_USERNAME/$DOCKER_REPO:.*|image: $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}|g" $KUBERNETES_DEPLOYMENT_FILE
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "slax508
+          git config --global user.email "sankulaxman1998@gmail.com"
           git add $KUBERNETES_DEPLOYMENT_FILE
           git commit -m "Update deployment image to $DOCKER_USERNAME/$DOCKER_REPO:${{ env.IMAGE_TAG }}"
           git push
