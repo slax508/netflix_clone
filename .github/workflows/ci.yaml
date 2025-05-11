@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master 
-
+permissions:
+  contents: write # Required to push changes to the repository
 env:
   DOCKER_USERNAME: sandhya0593 # Docker Hub username
   DOCKER_REPO: netflixk8s # Docker Hub repository name

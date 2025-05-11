@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: netflix-app
-        image: sandhya0593/netflixk8s:${CI_COMMIT_SHA}
+        image: sandhya0593/netflixk8s:${IMAGE_TAG}
         ports:
         - containerPort: 80
