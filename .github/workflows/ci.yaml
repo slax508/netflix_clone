@@ -38,13 +38,12 @@ jobs:
 
       - name: Update Kubernetes Deployment
         run: |
-          sed -i 's|image: sandhya0593/netflixnew:.*|image: sandhya0593/netflix05:latest|' Kubernetes/deployment.yaml
+          sed -i 's|image: sandhya0593/netflixnew:.*|image: sandhya0593/netflix05:latest|' Kubernetes/deployment.yml
 
       - name: Commit and Push Changes
         run: |
-          git config user.name "slax508
+          git config user.name "slax508"
           git config user.email "sankulaxman1998@gmail.com"
-          git add Kubernetes/deployment.yaml
+          git add Kubernetes/deployment.ym
           git commit -m "Update image to sandhya0593/netflix05:latest"
           git push
-          
