@@ -9,5 +9,5 @@
 git init
 git add .
 git commit -m "update"
-git remote add https://github.com/slax508/netflix_clone.git 
-git push -u origin master
+
+git push https://github.com/slax508/netflix_clone.git 
